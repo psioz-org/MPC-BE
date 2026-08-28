@@ -282,34 +282,38 @@ IF /I "%SIGN%" == "True" (
   CALL :SubSign %DIR% mpciconlib*.dll
 )
 
-TITLE Compiling MPCBEShellExt - %BUILDCFG%...
-MSBuild.exe MPCBEShellExt.sln %MSBUILD_SWITCHES%^
- /target:%BUILDTYPE% /property:Configuration=%BUILDCFG%;Platform=Win32
-IF %ERRORLEVEL% NEQ 0 (
-  CALL :SubMsg "ERROR" "MPCBEShellExt.sln %BUILDCFG% Win32 - Compilation failed!"
-  EXIT /B %ERRORLEVEL%
-) ELSE (
-  CALL :SubMsg "INFO" "MPCBEShellExt.sln %BUILDCFG% Win32 compiled successfully"
-)
+ TITLE Compiling MPCBEShellExt - %BUILDCFG%...
+ IF /I "%1" == "Win32" (
+   MSBuild.exe MPCBEShellExt.sln %MSBUILD_SWITCHES%^
+    /target:%BUILDTYPE% /property:Configuration=%BUILDCFG%;Platform=Win32
+   IF %ERRORLEVEL% NEQ 0 (
+     CALL :SubMsg "ERROR" "MPCBEShellExt.sln %BUILDCFG% Win32 - Compilation failed!"
+     EXIT /B %ERRORLEVEL%
+   ) ELSE (
+     CALL :SubMsg "INFO" "MPCBEShellExt.sln %BUILDCFG% Win32 compiled successfully"
+   )
 
-SET "DIR=%BIN%\mpc-be_x86"
-IF /I "%SIGN%" == "True" (
-  CALL :SubSign %DIR% MPCBEShellExt.dll
-)
+   SET "DIR=%BIN%\mpc-be_x86"
+   IF /I "%SIGN%" == "True" (
+     CALL :SubSign %DIR% MPCBEShellExt.dll
+   )
+ )
 
-MSBuild.exe MPCBEShellExt.sln %MSBUILD_SWITCHES%^
- /target:%BUILDTYPE% /property:Configuration=%BUILDCFG%;Platform=x64
-IF %ERRORLEVEL% NEQ 0 (
-  CALL :SubMsg "ERROR" "MPCBEShellExt.sln %BUILDCFG% x64 - Compilation failed!"
-  EXIT /B %ERRORLEVEL%
-) ELSE (
-  CALL :SubMsg "INFO" "MPCBEShellExt.sln %BUILDCFG% x64 compiled successfully"
-)
+ IF /I "%1" == "x64" (
+   MSBuild.exe MPCBEShellExt.sln %MSBUILD_SWITCHES%^
+    /target:%BUILDTYPE% /property:Configuration=%BUILDCFG%;Platform=x64
+   IF %ERRORLEVEL% NEQ 0 (
+     CALL :SubMsg "ERROR" "MPCBEShellExt.sln %BUILDCFG% x64 - Compilation failed!"
+     EXIT /B %ERRORLEVEL%
+   ) ELSE (
+     CALL :SubMsg "INFO" "MPCBEShellExt.sln %BUILDCFG% x64 compiled successfully"
+   )
 
-SET "DIR=%BIN%\mpc-be_x64"
-IF /I "%SIGN%" == "True" (
-  CALL :SubSign %DIR% MPCBEShellExt64.dll
-)
+   SET "DIR=%BIN%\mpc-be_x64"
+   IF /I "%SIGN%" == "True" (
+     CALL :SubSign %DIR% MPCBEShellExt64.dll
+   )
+ )
 
 EXIT /B
 
