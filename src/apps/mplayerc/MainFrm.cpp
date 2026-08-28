@@ -100,6 +100,8 @@ namespace LAVVideo
 #include "Win10Api.h"
 #include "PlayerYouTube.h"
 
+#include "DSUtil/NaturalCompare.h"
+
 #define DEFCLIENTW		292
 #define DEFCLIENTH		200
 #define MENUBARBREAK	30
@@ -8025,7 +8027,7 @@ void CMainFrame::OnViewRotate(UINT nID)
 			}
 
 			CString info;
-			info.Format(L"Rotation: %d\x00B0", rotation);
+			info.Format(L"Rotation: %d\u00B0", rotation);
 			SendStatusMessage(info, 3000);
 		}
 	}
@@ -14923,6 +14925,10 @@ void CMainFrame::ParseDirs(std::list<CString>& sl)
 			RecurseAddDir(GetAddSlash(fn), sl);
 		}
 	}
+	// Sort the list naturally after all directories and files have been added
+	sl.sort([](const CString& a, const CString& b) {
+		return (NaturalCompare(a, b) < 0);
+	});
 }
 
 int CMainFrame::SearchInDir(const bool bForward)

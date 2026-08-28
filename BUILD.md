@@ -1,6 +1,6 @@
-# MPC-BE Successful Build Steps
+# MPC-BE Build Steps
 
-This document records the exact steps used to successfully build MPC-BE.
+This document records the build steps for MPC-BE.
 
 ## Prerequisites
 
@@ -25,11 +25,11 @@ This document records the exact steps used to successfully build MPC-BE.
 
 ## Build Command
 
-From the repository root (`<REPO_ROOT>`), run one of:
+From the repository root (`<REPO_ROOT>`), run:
 
 ```bat
-build.bat Build x64        REM Release
-build.bat Build x64 Debug  REM Debug (faster compile, no optimization, larger binary)
+build.bat Build x64       # Release
+build.bat Build x64 Debug # Debug (faster compile, no optimization, larger binary)
 ```
 
 Default parameters used:
@@ -41,7 +41,7 @@ Default parameters used:
 
 ## Build Output
 
-The build completed successfully in **12 minutes 15 seconds**.
+Build time: ~12 minutes
 
 Artifacts were generated in `<REPO_ROOT>\_bin`:
 
@@ -54,13 +54,13 @@ Artifacts were generated in `<REPO_ROOT>\_bin`:
 | Static libraries | `_bin\lib\Release_x64\*.lib` | Multiple |
 | Shaders | `_bin\shaders\*.cso` | Multiple |
 
-All error and warning log files in `_bin\logs` are empty (0 bytes), confirming a clean build with no errors or warnings.
+All error and warning log files in `_bin\logs` are empty (0 bytes).
 
-## Verified Solutions
+## Verified Projects
 
-- `mpc-be.sln` Release x64 compiled successfully
-- `mpciconlib.sln` Release x64 compiled successfully
-- `MPCBEShellExt.sln` Release x64 compiled successfully
+- `mpc-be.sln` Release x64
+- `mpciconlib.sln` Release x64
+- `MPCBEShellExt.sln` Release x64
 - `mpcresources.sln` resources compiled for all languages
 
 ## Debug Build

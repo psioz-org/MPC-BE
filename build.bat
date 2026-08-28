@@ -77,8 +77,14 @@ CALL "update_revision.cmd"
 
 IF EXIST "environments.bat" CALL "environments.bat"
 
-IF NOT DEFINED MPCBE_MINGW GOTO MissingVar
-IF NOT DEFINED MPCBE_MSYS  GOTO MissingVar
+IF NOT DEFINED MPCBE_MINGW (
+  set "MissingDep=MPCBE_MINGW"
+  GOTO MissingVar
+)
+IF NOT DEFINED MPCBE_MSYS (
+  set "MissingDep=MPCBE_MSYS"
+  GOTO MissingVar
+)
 
 FOR %%X IN (%*) DO (
   IF /I "%%X" NEQ "NoWait" SET /A INPUT+=1
@@ -102,9 +108,14 @@ IF %ARGM%    GTR 1 (GOTO UnsupportedSwitch)
 
 IF /I "%PACKAGES%" == "True" SET "INSTALLER=True" & SET "ZIP=True"
 
-IF NOT EXIST "%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" GOTO MissingVar
-
+IF NOT EXIST "%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" (
+  set "MissingDep=vswhere"
+  GOTO MissingVar
+)
+:: To peek VSWHERE or VCVARS, uncomment
+:: setlocal enabledelayedexpansion
 SET "PARAMS=-property installationPath -requires Microsoft.Component.MSBuild Microsoft.VisualStudio.Component.VC.ATLMFC Microsoft.VisualStudio.Component.VC.Tools.x86.x64"
+SET "PARAMS=-property installationPath -products * -requires Microsoft.Component.MSBuild Microsoft.VisualStudio.Component.VC.ATLMFC Microsoft.VisualStudio.Component.VC.Tools.x86.x64"
 
 IF /I "%COMPILER%" == "VS2019" (
   SET "PARAMS=%PARAMS% -version [16.0,17.0)"
@@ -118,9 +129,16 @@ IF /I "%COMPILER%" == "VS2019" (
 
 SET "VSWHERE="%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" %PARAMS%"
 
-FOR /f "delims=" %%A IN ('!VSWHERE!') DO SET "VCVARS=%%A\Common7\Tools\vsdevcmd.bat"
+FOR /f "delims=" %%A IN ('!VSWHERE!') DO (
+  SET "VCVARS=%%A\Common7\Tools\vsdevcmd.bat"
+)
+:: echo !VCVARS!
+:: endlocal
 
-IF NOT EXIST "%VCVARS%" GOTO MissingVar
+IF NOT EXIST "%VCVARS%" (
+  set "MissingDep=VCVARS (%VCVARS%)"
+  GOTO MissingVar
+)
 
 SET "BIN=_bin"
 
@@ -282,38 +300,38 @@ IF /I "%SIGN%" == "True" (
   CALL :SubSign %DIR% mpciconlib*.dll
 )
 
- TITLE Compiling MPCBEShellExt - %BUILDCFG%...
- IF /I "%1" == "Win32" (
-   MSBuild.exe MPCBEShellExt.sln %MSBUILD_SWITCHES%^
-    /target:%BUILDTYPE% /property:Configuration=%BUILDCFG%;Platform=Win32
-   IF %ERRORLEVEL% NEQ 0 (
-     CALL :SubMsg "ERROR" "MPCBEShellExt.sln %BUILDCFG% Win32 - Compilation failed!"
-     EXIT /B %ERRORLEVEL%
-   ) ELSE (
-     CALL :SubMsg "INFO" "MPCBEShellExt.sln %BUILDCFG% Win32 compiled successfully"
-   )
+TITLE Compiling MPCBEShellExt - %BUILDCFG%...
+IF /I "%1" == "Win32" (
+  MSBuild.exe MPCBEShellExt.sln %MSBUILD_SWITCHES%^
+   /target:%BUILDTYPE% /property:Configuration=%BUILDCFG%;Platform=Win32
+  IF %ERRORLEVEL% NEQ 0 (
+    CALL :SubMsg "ERROR" "MPCBEShellExt.sln %BUILDCFG% Win32 - Compilation failed!"
+    EXIT /B %ERRORLEVEL%
+  ) ELSE (
+    CALL :SubMsg "INFO" "MPCBEShellExt.sln %BUILDCFG% Win32 compiled successfully"
+  )
 
-   SET "DIR=%BIN%\mpc-be_x86"
-   IF /I "%SIGN%" == "True" (
-     CALL :SubSign %DIR% MPCBEShellExt.dll
-   )
- )
+  SET "DIR=%BIN%\mpc-be_x86"
+  IF /I "%SIGN%" == "True" (
+    CALL :SubSign %DIR% MPCBEShellExt.dll
+  )
+)
 
- IF /I "%1" == "x64" (
-   MSBuild.exe MPCBEShellExt.sln %MSBUILD_SWITCHES%^
-    /target:%BUILDTYPE% /property:Configuration=%BUILDCFG%;Platform=x64
-   IF %ERRORLEVEL% NEQ 0 (
-     CALL :SubMsg "ERROR" "MPCBEShellExt.sln %BUILDCFG% x64 - Compilation failed!"
-     EXIT /B %ERRORLEVEL%
-   ) ELSE (
-     CALL :SubMsg "INFO" "MPCBEShellExt.sln %BUILDCFG% x64 compiled successfully"
-   )
+IF /I "%1" == "x64" (
+  MSBuild.exe MPCBEShellExt.sln %MSBUILD_SWITCHES%^
+   /target:%BUILDTYPE% /property:Configuration=%BUILDCFG%;Platform=x64
+  IF %ERRORLEVEL% NEQ 0 (
+    CALL :SubMsg "ERROR" "MPCBEShellExt.sln %BUILDCFG% x64 - Compilation failed!"
+    EXIT /B %ERRORLEVEL%
+  ) ELSE (
+    CALL :SubMsg "INFO" "MPCBEShellExt.sln %BUILDCFG% x64 compiled successfully"
+  )
 
-   SET "DIR=%BIN%\mpc-be_x64"
-   IF /I "%SIGN%" == "True" (
-     CALL :SubSign %DIR% MPCBEShellExt64.dll
-   )
- )
+  SET "DIR=%BIN%\mpc-be_x64"
+  IF /I "%SIGN%" == "True" (
+    CALL :SubSign %DIR% MPCBEShellExt64.dll
+  )
+)
 
 EXIT /B
 
@@ -607,7 +625,11 @@ EXIT /B
 :MissingVar
 COLOR 0C
 TITLE Compiling MPC-BE [ERROR]
-ECHO Not all build dependencies were found.
+if defined MissingDep (
+  echo [ERROR] Missing dependency: %MissingDep%
+) else (
+  echo [ERROR] Not all build dependencies were found.
+)
 ECHO.
 ECHO See "docs\Compilation.txt" for more information.
 ECHO. & ECHO.

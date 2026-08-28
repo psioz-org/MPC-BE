@@ -37,6 +37,8 @@
 #include "TorrentInfo.h"
 #include "PlayerYouTube.h"
 
+#include "DSUtil/NaturalCompare.h"
+
 #define ID_PLSMENU_ADD_PLAYLIST    2001
 #define ID_PLSMENU_ADD_EXPLORER    2002
 #define ID_PLSMENU_RENAME_PLAYLIST 2003
@@ -292,13 +294,9 @@ CString CPlaylistItem::GetLabel(int i) const
 			return m_label;
 		}
 		if (m_fi.Valid()) {
-			if (::PathIsURLW(m_fi)) {
-				CStringW label = m_fi.GetPath();
-				GetLabelFromURL(m_fi, label);
-				return label;
-			} else {
-				return GetFileName(m_fi);
-			}
+			CStringW label = m_fi.GetPath();
+			GetLabelFromURL(m_fi, label);
+			return label;
 		}
 	} else if (i == 1) {
 		if (m_bInvalid) {
@@ -572,7 +570,7 @@ void CPlaylist::SortByName()
 	}
 
 	std::sort(a.begin(), a.end(), [](const plsort_str_t& a, const plsort_str_t& b) {
-		return (StrCmpLogicalW(a.str, b.str) < 0);
+		return (NaturalCompare(a.str, b.str) < 0);
 	});
 
 	for (size_t i = 0; i < a.size(); i++) {
@@ -598,7 +596,7 @@ void CPlaylist::SortByPath()
 	}
 
 	std::sort(a.begin(), a.end(), [](const plsort_str_t& a, const plsort_str_t& b) {
-		return (StrCmpLogicalW(a.str, b.str) < 0);
+		return (NaturalCompare(a.str, b.str) < 0);
 	});
 
 	for (size_t i = 0; i < a.size(); i++) {
@@ -1233,7 +1231,7 @@ void CPlayerPlaylistBar::AddItem(std::list<CString>& fns, CSubtitleItemList* sub
 			GetLabelFromURL(pli.m_fi, pli.m_label);
 		}
 		else {
-			pli.m_label = GetFileName(pli.m_fi);
+			pli.m_label = pli.m_fi.GetPath();
 		}
 
 		pli.m_autolabel = true;
@@ -1294,7 +1292,7 @@ static bool SearchFiles(CString path, std::list<CString>& sl, bool bSingleElemen
 	}
 
 	sl.sort([](const CString& a, const CString& b) {
-		return (StrCmpLogicalW(a, b) < 0);
+		return (NaturalCompare(a, b) < 0);
 	});
 
 	return(sl.size() > 1
@@ -4786,37 +4784,52 @@ void CPlayerPlaylistBar::TFillPlaylist(const bool bFirst/* = false*/)
 
 	if (sort == SORT::NAME) {
 		std::sort(directory.begin(), directory.end(), [&](const file_data_t& a, const file_data_t& b) {
-			return (!bReverse ? StrCmpLogicalW(a.name, b.name) < 0 : StrCmpLogicalW(a.name, b.name) > 0);
+			return (!bReverse ? NaturalCompare(a.name, b.name) < 0 : NaturalCompare(a.name, b.name) > 0);
 		});
 
 		std::sort(files.begin(), files.end(), [&](const file_data_t& a, const file_data_t& b) {
-			return (!bReverse ? StrCmpLogicalW(a.name, b.name) < 0 : StrCmpLogicalW(a.name, b.name) > 0);
+			return (!bReverse ? NaturalCompare(a.name, b.name) < 0 : NaturalCompare(a.name, b.name) > 0);
 		});
 	}
 	else if (sort == SORT::DATE) {
 		std::sort(directory.begin(), directory.end(), [&](const file_data_t& a, const file_data_t& b) {
+			if (a.time.QuadPart == b.time.QuadPart) {
+				return (!bReverse ? NaturalCompare(a.name, b.name) < 0 : NaturalCompare(a.name, b.name) > 0);
+			}
 			return (!bReverse ? a.time.QuadPart < b.time.QuadPart : a.time.QuadPart > b.time.QuadPart);
 		});
 
 		std::sort(files.begin(), files.end(), [&](const file_data_t& a, const file_data_t& b) {
+			if (a.time.QuadPart == b.time.QuadPart) {
+				return (!bReverse ? NaturalCompare(a.name, b.name) < 0 : NaturalCompare(a.name, b.name) > 0);
+			}
 			return (!bReverse ? a.time.QuadPart < b.time.QuadPart : a.time.QuadPart > b.time.QuadPart);
 		});
 	}
 	else if (sort == SORT::DATE_CREATED) {
 		std::sort(directory.begin(), directory.end(), [&](const file_data_t& a, const file_data_t& b) {
+			if (a.time_created.QuadPart == b.time_created.QuadPart) {
+				return (!bReverse ? NaturalCompare(a.name, b.name) < 0 : NaturalCompare(a.name, b.name) > 0);
+			}
 			return (!bReverse ? a.time_created.QuadPart < b.time_created.QuadPart : a.time_created.QuadPart > b.time_created.QuadPart);
 		});
 
 		std::sort(files.begin(), files.end(), [&](const file_data_t& a, const file_data_t& b) {
+			if (a.time_created.QuadPart == b.time_created.QuadPart) {
+				return (!bReverse ? NaturalCompare(a.name, b.name) < 0 : NaturalCompare(a.name, b.name) > 0);
+			}
 			return (!bReverse ? a.time_created.QuadPart < b.time_created.QuadPart : a.time_created.QuadPart > b.time_created.QuadPart);
 		});
 	}
 	else if (sort == SORT::SIZE) {
 		std::sort(directory.begin(), directory.end(), [](const file_data_t& a, const file_data_t& b) {
-			return (StrCmpLogicalW(a.name, b.name) < 0);
+			return (NaturalCompare(a.name, b.name) < 0);
 		});
 
 		std::sort(files.begin(), files.end(), [&](const file_data_t& a, const file_data_t& b) {
+			if (a.size.QuadPart == b.size.QuadPart) {
+				return (!bReverse ? NaturalCompare(a.name, b.name) < 0 : NaturalCompare(a.name, b.name) > 0);
+			}
 			return (!bReverse ? a.size.QuadPart < b.size.QuadPart : a.size.QuadPart > b.size.QuadPart);
 		});
 	}

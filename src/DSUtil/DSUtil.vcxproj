@@ -78,6 +78,7 @@
     <ClCompile Include="MediaTypeEx.cpp" />
     <ClCompile Include="MFCHelper.cpp" />
     <ClCompile Include="MP4AudioDecoderConfig.cpp" />
+    <ClCompile Include="NaturalCompare.cpp" />
     <ClCompile Include="NullRenderers.cpp" />
     <ClCompile Include="Packet.cpp" />
     <ClCompile Include="PixelUtils.cpp" />

@@ -20,6 +20,7 @@ IF EXIST "environments.bat" CALL "environments.bat"
 
 IF DEFINED MPCBE_MINGW GOTO VarOk
 ECHO ERROR: Please define MPCBE_MINGW environment variable
+PAUSE
 ENDLOCAL
 EXIT /B
 
