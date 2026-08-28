@@ -22,3 +22,8 @@
 /lib/libmingwex.a
 /lib64/libgcc.a
 /lib64/libmingwex.a
+
+# Build directories
+build/
+Build/
+build-*/
