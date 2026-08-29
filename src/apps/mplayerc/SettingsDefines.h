@@ -51,6 +51,7 @@
 #define IDS_RS_SUBTITLE_DEFAULT_CODEPAGE	L"SubtitleDefaultCodePage"
 #define IDS_RS_SUBTITLE_AUTODETECTCODEPAGE	L"SubtitleAutoDetectCodePage"
 #define IDS_RS_USEDEFAULTSUBTITLESSTYLE		L"UseDefaultsubtitlesStyle"
+#define IDS_RS_SUBTITLE_LAYOUT		    	L"SubtitleLayout"
 #define IDS_RS_THUMBWIDTH					L"ThumbWidth"
 
 #define IDS_RS_SUBSAVEEXTERNALSTYLEFILE		L"SubSaveExternalStyleFile"
@@ -126,7 +127,7 @@
 #define IDS_RS_WEBSERVERCGI					L"CGIHandlers"
 #define IDS_RS_WEBDEFINDEX					L"DefaultPage"
 
-// ÎnlineServices
+// ï¿½nlineServices
 #define IDS_R_ONLINESERVICES				L"OnlineServices"
 #define IDS_R_YOUTUBECACHE					L"OnlineServices\\YoutubeCache"
 #define IDS_RS_YDL_ENABLE					L"YDLEnable"

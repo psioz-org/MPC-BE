@@ -420,6 +420,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWnd)
 	ON_COMMAND(ID_SUBTITLES_FORCEDONLY, OnMenuSubtitlesForcedOnly)
 	ON_UPDATE_COMMAND_UI(ID_SUBTITLES_FORCEDONLY, OnUpdateSubtitlesForcedOnly)
 	ON_COMMAND_RANGE(ID_SUBTITLES_STEREO_DONTUSE, ID_SUBTITLES_STEREO_TOPBOTTOM, OnStereoSubtitles)
+	ON_COMMAND_RANGE(ID_SUBTITLES_LAYOUT_FIXED, ID_SUBTITLES_LAYOUT_STACK, OnSubtitleLayoutMode)
+	ON_UPDATE_COMMAND_UI_RANGE(ID_SUBTITLES_LAYOUT_FIXED, ID_SUBTITLES_LAYOUT_STACK, OnUpdateSubtitleLayoutMode)
 
 	ON_COMMAND_RANGE(ID_FILTERSTREAMS_SUBITEM_START, ID_FILTERSTREAMS_SUBITEM_END, OnSelectStream)
 	ON_COMMAND_RANGE(ID_VOLUME_UP, ID_VOLUME_MUTE, OnPlayVolume)
@@ -693,6 +695,8 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	UseCurentMonitorDPI(m_hWnd);
 
 	CAppSettings& s = AfxGetAppSettings();
+
+	g_subtitleLayout = s.iSubtitleLayout;
 
 	CMenuEx::SetMain(this);
 	CMenuEx::EnableHook(s.bUseDarkTheme && s.bDarkMenu);
@@ -9191,6 +9195,36 @@ void CMainFrame::OnStereoSubtitles(UINT nID)
 
 	m_OSD.DisplayMessage(OSD_TOPLEFT, osd, 3000);
 }
+void CMainFrame::OnSubtitleLayoutMode(UINT nID)
+{
+	CAppSettings& s = AfxGetAppSettings();
+	CString osd = ResStr(IDS_SUBTITLES_LAYOUT);
+
+	switch (nID) {
+	case ID_SUBTITLES_LAYOUT_FIXED:
+		s.iSubtitleLayout = 0;
+		osd.AppendFormat(L": %s", ResStr(IDS_SUBTITLES_LAYOUT_FIXED));
+		break;
+	case ID_SUBTITLES_LAYOUT_STACK:
+		s.iSubtitleLayout = 1;
+		osd.AppendFormat(L": %s", ResStr(IDS_SUBTITLES_LAYOUT_STACK));
+		break;
+	}
+
+	g_subtitleLayout = s.iSubtitleLayout;
+
+	if (m_pCAP) {
+		m_pCAP->Invalidate();
+		RepaintVideo();
+	}
+
+	m_OSD.DisplayMessage(OSD_TOPLEFT, osd, 3000);
+}
+
+void CMainFrame::OnUpdateSubtitleLayoutMode(CCmdUI* pCmdUI)
+{
+	SetMenuRadioCheck(pCmdUI, AfxGetAppSettings().iSubtitleLayout == (pCmdUI->m_nID - ID_SUBTITLES_LAYOUT_FIXED));
+}
 
 void CMainFrame::OnUpdateNavMixSubtitles(CCmdUI* pCmdUI)
 {
@@ -15367,6 +15401,19 @@ void CMainFrame::SetupSubtitlesSubMenu()
 	submenu3.AppendMenuW(SetFlags(SUBPIC_STEREO_SIDEBYSIDE), ID_SUBTITLES_STEREO_SIDEBYSIDE, ResStr(IDS_SUBTITLES_STEREO_SIDEBYSIDE));
 	submenu3.AppendMenuW(SetFlags(SUBPIC_STEREO_TOPANDBOTTOM), ID_SUBTITLES_STEREO_TOPBOTTOM, ResStr(IDS_SUBTITLES_STEREO_TOPANDBOTTOM));
 	submenu.AppendMenuW(MF_STRING | MF_POPUP | MF_ENABLED, (UINT_PTR)submenu3.Detach(), ResStr(IDS_SUBTITLES_STEREO));
+
+	CMenu submenu4;
+	submenu4.CreatePopupMenu();
+	auto SetLayoutFlags = [](int layoutmode) {
+		if (AfxGetAppSettings().iSubtitleLayout == layoutmode) {
+			return MF_BYCOMMAND | MF_STRING | MF_ENABLED | MF_CHECKED | MFT_RADIOCHECK;
+		} else {
+			return MF_BYCOMMAND | MF_STRING | MF_ENABLED;
+		}
+	};
+	submenu4.AppendMenuW(SetLayoutFlags(0), ID_SUBTITLES_LAYOUT_FIXED, ResStr(IDS_SUBTITLES_LAYOUT_FIXED));
+	submenu4.AppendMenuW(SetLayoutFlags(1), ID_SUBTITLES_LAYOUT_STACK, ResStr(IDS_SUBTITLES_LAYOUT_STACK));
+	submenu.AppendMenuW(MF_STRING | MF_POPUP | MF_ENABLED, (UINT_PTR)submenu4.Detach(), ResStr(IDS_SUBTITLES_LAYOUT));
 }
 
 void CMainFrame::SetupSubtitlesRButtonMenu()

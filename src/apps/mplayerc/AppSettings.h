@@ -784,6 +784,7 @@ public:
 	bool			fEnableSubtitles;
 	bool			fUseDefaultSubtitlesStyle;
 	bool			fForcedSubtitles;
+	int				iSubtitleLayout;
 	// Video Frame
 	int				iDefaultVideoSize;
 	bool			bNoSmallUpscale;

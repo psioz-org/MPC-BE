@@ -28,6 +28,7 @@
 
 // WARNING: this isn't very thread safe, use only one RTS a time. We should use TLS in future.
 static HDC g_hDC;
+int g_subtitleLayout = 0;
 static int g_hDC_refcnt = 0;
 
 static long revcolor(long c)
@@ -1529,6 +1530,35 @@ CRect CScreenLayoutAllocator::AllocRect(const CSubtitle* s, int segment, int ent
 		}
 	}
 
+
+	if (g_subtitleLayout == 1) {
+		bool fFound = false;
+		POSITION pos3 = m_subrects.GetHeadPosition();
+		while (pos3) {
+			SubRect& sr3 = m_subrects.GetNext(pos3);
+			if (sr3.entry == entry) {
+				fFound = true;
+				break;
+			}
+		}
+		if (!fFound) {
+			bool fSearchDown = s->m_scrAlignment > 3;
+			POSITION pos2 = m_subrects.GetHeadPosition();
+			while (pos2) {
+				POSITION prev2 = pos2;
+				SubRect& sr2 = m_subrects.GetNext(pos2);
+				if (sr2.layer == layer) {
+					if (!fSearchDown) {
+						sr2.r.top -= sr2.r.Height();
+						sr2.r.bottom -= sr2.r.Height();
+					} else {
+						sr2.r.top += sr2.r.Height();
+						sr2.r.bottom += sr2.r.Height();
+					}
+				}
+			}
+		}
+	}
 	CRect r = s->m_rect + CRect(0, s->m_topborder, 0, s->m_bottomborder);
 
 	bool fSearchDown = s->m_scrAlignment > 3;
@@ -2901,9 +2931,12 @@ void CRenderedTextSubtitle::SetName(const CString& name)
 }
 
 struct LSub {
-	int idx, layer, readorder;
+	int idx, layer, readorder, start;
 
 	bool operator <(const LSub& rhs) const {
+		if (g_subtitleLayout == 1) {
+			return (start == rhs.start) ? (layer == rhs.layer) ? readorder < rhs.readorder : layer < rhs.layer : start > rhs.start;
+		}
 		return (layer == rhs.layer) ? readorder < rhs.readorder : layer < rhs.layer;
 	}
 };
@@ -2925,7 +2958,7 @@ const bool CRenderedTextSubtitle::GetText(const REFERENCE_TIME rt, const double 
 	for (size_t i = 0, j = stss->subs.GetCount(); i < j; i++) {
 		const auto idx = stss->subs[i];
 		const auto& sts_entry = GetAt(idx);
-		subs.Add({ idx, sts_entry.layer, sts_entry.readorder });
+		subs.Add({ idx, sts_entry.layer, sts_entry.readorder, sts_entry.start });
 	}
 
 	std::sort(subs.GetData(), subs.GetData() + subs.GetCount());
@@ -3091,7 +3124,7 @@ STDMETHODIMP CRenderedTextSubtitle::Render(SubPicDesc& spd, REFERENCE_TIME rt, d
 	for (size_t i = 0, j = stss->subs.GetCount(); i < j; i++) {
 		const auto idx = stss->subs[i];
 		const auto& sts_entry = GetAt(idx);
-		subs.Add({ idx, sts_entry.layer, sts_entry.readorder });
+		subs.Add({ idx, sts_entry.layer, sts_entry.readorder, sts_entry.start });
 	}
 
 	std::sort(subs.GetData(), subs.GetData() + subs.GetCount());

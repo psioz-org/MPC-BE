@@ -1099,6 +1099,8 @@ public:
 	afx_msg void OnMenuSubtitlesForcedOnly();
 	afx_msg void OnUpdateSubtitlesForcedOnly(CCmdUI* pCmdUI);
 	afx_msg void OnStereoSubtitles(UINT nID);
+	afx_msg void OnSubtitleLayoutMode(UINT nID);
+	afx_msg void OnUpdateSubtitleLayoutMode(CCmdUI* pCmdUI);
 
 	afx_msg void OnUpdateNavMixSubtitles(CCmdUI* pCmdUI);
 

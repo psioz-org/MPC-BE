@@ -365,6 +365,8 @@
 #define ID_SUBTITLES_STEREO_DONTUSE     1177
 #define ID_SUBTITLES_STEREO_SIDEBYSIDE  1178
 #define ID_SUBTITLES_STEREO_TOPBOTTOM   1179
+#define ID_SUBTITLES_LAYOUT_FIXED       1180
+#define ID_SUBTITLES_LAYOUT_STACK       1181
 //
 #define ID_SHOW_MILLISECONDS            1200
 #define ID_PLAY_REPEAT_AB               1201
@@ -1443,12 +1445,16 @@
 #define IDS_SUBTITLES_STEREO_DONTUSE    34001
 #define IDS_SUBTITLES_STEREO_SIDEBYSIDE 34002
 #define IDS_SUBTITLES_STEREO_TOPANDBOTTOM 34003
+// subtitle layout
+#define IDS_SUBTITLES_LAYOUT            34006
+#define IDS_SUBTITLES_LAYOUT_FIXED      34007
+#define IDS_SUBTITLES_LAYOUT_STACK      34008
 // subtitle position
 #define IDS_SUB_POS_UP                  34010
 #define IDS_SUB_POS_DOWN                34011
 #define IDS_SUB_POS_LEFT                34012
-#define IDS_SUB_POS_RIGHT               34013
-#define IDS_SUB_POS_RESTORE             34014
+#define IDS_SUB_POS_RIGHT               34004
+#define IDS_SUB_POS_RESTORE             34005
 //
 #define IDS_SUB_COPYTOCLIPBOARD         34016
 #define IDS_SUB_SIZE_DEC                34017

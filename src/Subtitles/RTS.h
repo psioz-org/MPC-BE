@@ -534,3 +534,5 @@ public:
 	STDMETHODIMP SetStream(int iStream);
 	STDMETHODIMP Reload();
 };
+
+extern int g_subtitleLayout;
